@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NCPD SYSTEM</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#0f172a;
+color:white;
+margin:0;
+}
+
+header{
+background:#020617;
+padding:15px;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+border-bottom:2px solid #3b82f6;
+}
+
+.container{
+display:flex;
+height:93vh;
+}
+
+.sidebar{
+width:230px;
+background:#020617;
+padding:20px;
+border-right:2px solid #1e3a8a;
+}
+
+.sidebar h3{
+margin-bottom:15px;
+}
+
+.sidebar button{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+background:#1e40af;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:5px;
+}
+
+.main{
+flex:1;
+padding:25px;
+overflow:auto;
+}
+
+.card{
+background:#020617;
+padding:15px;
+border-radius:8px;
+margin-bottom:20px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:10px;
+border:none;
+border-radius:5px;
+background:#0f172a;
+color:white;
+}
+
+button.action{
+padding:10px 15px;
+background:#2563eb;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:5px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+background:#0f172a;
+}
+
+th,td{
+padding:10px;
+border:1px solid #1e3a8a;
+text-align:center;
+}
+
+img{
+max-width:120px;
+border-radius:6px;
+margin-top:10px;
+}
+
+.result{
+margin-top:20px;
+}
+
+pre{
+background:#020617;
+padding:15px;
+border-radius:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+🚓 NCPD MDT TERMINAL
+</header>
+
+<div class="container">
+
+<div class="sidebar">
+
+<h3>MDT MENU</h3>
+
+<button>Dashboard</button>
+<button>Citizen Search</button>
+<button>Vehicle Database</button>
+<button>Warrants</button>
+<button>Arrest Reports</button>
+
+</div>
+
+<div class="main">
+
+<div class="card">
+
+<h2>Officer Information</h2>
+
+<label>Officer Name</label>
+<input type="text" id="officer">
+
+<label>Badge Number</label>
+<input type="text" id="badge">
+
+</div>
+
+<div class="card">
+
+<h2>Suspect Profile</h2>
+
+<label>Suspect Name</label>
+<input type="text" id="suspect">
+
+<label>Mugshot</label>
+<input type="file" id="photo" onchange="previewPhoto()">
+
+<img id="preview">
+
+</div>
+
+<div class="card">
+
+<h2>Add Charges</h2>
+
+<select id="crime">
+
+<option value="0,0,">Select Charge</option>
+<option value="5,500,Theft">Theft (5 Months / $500)</option>
+<option value="10,1000,Robbery">Robbery (10 Months / $1000)</option>
+<option value="15,1500,Assault">Assault (15 Months / $1500)</option>
+<option value="25,2500,Murder">Murder (25 Months / $2500)</option>
+
+</select>
+
+<button class="action" onclick="addCrime()">Add Charge</button>
+
+<table id="crimeTable">
+
+<tr>
+<th>Charge</th>
+<th>Jail</th>
+<th>Fine</th>
+<th>Action</th>
+</tr>
+
+</table>
+
+</div>
+
+<div class="card result">
+
+<h2>Sentence Summary</h2>
+
+<p>Total Jail Time: <span id="jail">0</span> Months</p>
+<p>Total Fine: $<span id="fine">0</span></p>
+
+<button class="action" onclick="generateReport()">Generate Arrest Report</button>
+
+<pre id="report"></pre>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let totalJail = 0
+let totalFine = 0
+
+function previewPhoto(){
+
+let file = document.getElementById("photo").files[0]
+let reader = new FileReader()
+
+reader.onload = function(e){
+document.getElementById("preview").src = e.target.result
+}
+
+reader.readAsDataURL(file)
+
+}
+
+function addCrime(){
+
+let data = document.getElementById("crime").value.split(",")
+
+let jail = parseInt(data[0])
+let fine = parseInt(data[1])
+let name = data[2]
+
+if(jail == 0) return
+
+let table = document.getElementById("crimeTable")
+
+let row = table.insertRow()
+
+row.insertCell(0).innerText = name
+row.insertCell(1).innerText = jail + " Months"
+row.insertCell(2).innerText = "$" + fine
+
+let action = row.insertCell(3)
+
+let btn = document.createElement("button")
+btn.innerText = "Delete"
+
+btn.onclick = function(){
+
+totalJail -= jail
+totalFine -= fine
+
+document.getElementById("jail").innerText = totalJail
+document.getElementById("fine").innerText = totalFine
+
+row.remove()
+
+}
+
+action.appendChild(btn)
+
+totalJail += jail
+totalFine += fine
+
+document.getElementById("jail").innerText = totalJail
+document.getElementById("fine").innerText = totalFine
+
+}
+
+function generateReport(){
+
+let officer = document.getElementById("officer").value
+let badge = document.getElementById("badge").value
+let suspect = document.getElementById("suspect").value
+
+let report = `
+===== MDT ARREST REPORT =====
+
+Officer : ${officer}
+Badge   : ${badge}
+
+Suspect : ${suspect}
+
+Total Jail Time : ${totalJail} Months
+Total Fine : $${totalFine}
+
+Status : Suspect Processed Into Prison
+`
+
+document.getElementById("report").innerText = report
+
+}
+
+</script>
+
+</body>
+</html>
